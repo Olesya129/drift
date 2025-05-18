@@ -1,0 +1,136 @@
+{% extends 'layout.html' %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+    <h1 class="text-center mb-4">Профиль пользователя</h1>
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ user_data[0] }}</h5>
+                <p class="card-text">
+                    <strong>Email:</strong> {{ user_data[1] }}<br>
+                    <strong>Город:</strong> {{ user_data[2] }}<br>
+                    <strong>Роль:</strong> {{ user.role }}
+                </p>
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">Редактировать профиль</a>
+            </div>
+        </div>
+
+        {% if user.role == 'участник' %}
+            <h2 class="mb-3">Мои регистрации</h2>
+            {% if registrations %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Мероприятие</th>
+                                <th>Дата</th>
+                                <th>Локация</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in registrations %}
+                                <tr>
+                                    <td>{{ reg[1] }}</td>
+                                    <td>{{ reg[2] }}</td>
+                                    <td>{{ reg[3] }} ({{ reg[4] }})</td>
+                                    <td>{{ reg[5] }}</td>
+                                    <td>
+                                        {% if reg[5] == 'на_рассмотрении' or reg[5] == 'подтверждено' %}
+                                            <form method="POST" action="{{ url_for('unregister_event', event_id=reg[0]) }}" style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-sm">Отменить</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>У вас нет зарегистрированных мероприятий.</p>
+            {% endif %}
+
+            <h2 class="mb-3 mt-4">Мои машины</h2>
+            {% if cars %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Модель</th>
+                                <th>Год</th>
+                                <th>Цвет</th>
+                                <th>Мероприятие</th>
+                                <th>Фото</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for car in cars %}
+                                <tr>
+                                    <td>{{ car[1] }}</td>
+                                    <td>{{ car[2] }}</td>
+                                    <td>{{ car[3] }}</td>
+                                    <td>{{ car[5] if car[5] else 'Не привязано' }}</td>
+                                    <td>
+                                        {% if car[4] %}
+                                            <img src="{{ url_for('static', filename=car[4]) }}" alt="{{ car[1] }}" style="max-width: 100px;">
+                                        {% else %}
+                                            Нет фото
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('edit_car', car_id=car[0]) }}" class="btn btn-primary btn-sm">Редактировать</a>
+                                        <form method="POST" action="{{ url_for('delete_car', car_id=car[0]) }}" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить эту машину?');">
+                                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>У вас нет добавленных машин.</p>
+            {% endif %}
+            <a href="{{ url_for('add_car') }}" class="btn btn-success mb-4">Добавить машину</a>
+
+            <h2 class="mb-3 mt-4">Мои оплаты</h2>
+            {% if payments %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Мероприятие</th>
+                                <th>Сумма</th>
+                                <th>Статус</th>
+                                <th>Дата оплаты</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment[4] }}</td>
+                                    <td>{{ payment[1] }} руб.</td>
+                                    <td>{{ payment[2] }}</td>
+                                    <td>{{ payment[3] }}</td>
+                                    <td>
+                                        {% if payment[2] == 'ожидает оплаты' %}
+                                            <form method="POST" action="{{ url_for('pay_registration', registration_id=payment[5]) }}" style="display:inline;">
+                                                <button type="submit" class="btn btn-success btn-sm">Оплатить</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>У вас нет платежей.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'layout.html' %}
+{% block title %}DriftHub{% endblock %}
+{% block content %}
+    <!-- Добавляем локальные стили для этого шаблона -->
+    <style>
+        /* Переопределяем стиль для select */
+        #status {
+            background: #181c24; /* Темный фон */
+            color: #fff; /* Белый текст */
+            border: 1px solid #181c24; /* Красная граница */
+        }
+        /* Переопределяем стиль для option внутри select */
+        #status option {
+            background: #181c24; /* Темный фон для элементов списка */
+            color: #fff; /* Белый текст */
+        }
+    </style>
+
+    <h1 class="text-center mb-4">Добро пожаловать в Drift</h1>
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col">
+                <form method="GET" action="{{ url_for('index') }}">
+                    <label for="status">Фильтр по статусу:</label>
+                    <select name="status" id="status" onchange="this.form.submit()">
+                        <option value="запланировано" {% if status_filter == 'запланировано' %}selected{% endif %}>Запланировано</option>
+                        <option value="завершено" {% if status_filter == 'завершено' %}selected{% endif %}>Завершено</option>
+                        <option value="отменено" {% if status_filter == 'отменено' %}selected{% endif %}>Отменено</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+        {% if events %}
+            <div class="row">
+                {% for event in events %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            {% if event[5] %}
+                                <img src="{{ url_for('static', filename=event[5]) }}" class="card-img-top event-img" alt="{{ event[1] }}">
+                            {% else %}
+                                <div class="card-img-top text-center p-3 bg-light">Фото отсутствует</div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event[1] }}</h5>
+                                <p class="card-text">
+                                    <strong>Дата:</strong> {{ event[2] }}<br>
+                                    <strong>Локация:</strong> {{ event[3] }} ({{ event[4] }})<br>
+                                    {{ event[6] if event[6] else 'Описание отсутствует' }}
+                                </p>
+                                <a href="{{ url_for('event_detail', event_id=event[0]) }}" class="btn btn-primary">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center">Мероприятий с выбранным статусом нет.</p>
+        {% endif %}
+    </div>
+{% endblock %}

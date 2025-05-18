@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+{% block title %}Редактировать профиль{% endblock %}
+{% block content %}
+    <h1 class="text-center mb-4">Редактировать профиль</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="POST" action="{{ url_for('edit_profile') }}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Имя пользователя</label>
+                    <input type="text" class="form-control" id="username" name="username" value="{{ user_data[0] }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user_data[1] }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="city" class="form-label">Город</label>
+                    <input type="text" class="form-control" id="city" name="city" value="{{ user_data[2] }}" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

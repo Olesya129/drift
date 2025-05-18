@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+{% block title %}Редактировать машину{% endblock %}
+{% block content %}
+    <h1 class="text-center mb-4">Редактировать машину</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="POST" action="{{ url_for('edit_car', car_id=car[0]) }}">
+                <div class="mb-3">
+                    <label for="model" class="form-label">Модель</label>
+                    <input type="text" class="form-control" id="model" name="model" value="{{ car[1] }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="year" class="form-label">Год</label>
+                    <input type="number" class="form-control" id="year" name="year" min="1900" max="2025" value="{{ car[2] }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="color" class="form-label">Цвет</label>
+                    <input type="text" class="form-control" id="color" name="color" value="{{ car[3] }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="photo_url" class="form-label">URL фото (опционально)</label>
+                    <input type="text" class="form-control" id="photo_url" name="photo_url" value="{{ car[4] or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="event_id" class="form-label">Привязать к мероприятию (только зарегистрированные)</label>
+                    <select class="form-select" id="event_id" name="event_id">
+                        <option value="">Не выбрано</option>
+                        {% for event in events %}
+                            <option value="{{ event[0] }}" {% if car[5] == event[0] %}selected{% endif %}>{{ event[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

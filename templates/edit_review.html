@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+{% block title %}Редактировать отзыв{% endblock %}
+{% block content %}
+<h1 class="text-center mb-4">Редактировать отзыв</h1>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="rating" class="form-label">Оценка:</label>
+                <select name="rating" id="rating" class="form-select" required>
+                    {% for i in range(1,6) %}
+                        <option value="{{ i }}" {% if review[1] == i %}selected{% endif %}>{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="comment" class="form-label">Комментарий:</label>
+                <textarea name="comment" id="comment" class="form-control" rows="3" required>{{ review[2] }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Сохранить изменения</button>
+        </form>
+    </div>
+</div>
+{% endblock %} 
