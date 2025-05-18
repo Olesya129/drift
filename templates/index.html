@@ -1,8 +1,27 @@
 {% extends 'layout.html' %}
-{% block title %}DriftHub{% endblock %}
+{% block title %}Drift{% endblock %}
 {% block content %}
     <!-- Добавляем локальные стили для этого шаблона -->
     <style>
+        /* Стили для карточек мероприятий */
+        .card {
+            height: 800px; /* Фиксированная высота карточки */
+            display: flex; /* Используем flexbox для управления содержимым */
+            flex-direction: column; /* Выстраиваем элементы в колонку */
+        }
+
+        .card-img-top {
+            height: 400px; /* Фиксированная высота изображения */
+            object-fit: cover; /* Обрезаем изображение, чтобы оно покрывало всю область */
+        }
+
+        .card-body {
+            flex-grow: 1; /* Занимает все доступное пространство */
+            display: flex; /* Используем flexbox для содержимого body */
+            flex-direction: column; /* Выстраиваем содержимое body в колонку */
+            justify-content: space-between; /* Распределяем пространство между элементами */
+        }
+
         /* Переопределяем стиль для select */
         #status {
             background: #181c24; /* Темный фон */

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import psycopg2
+from psycopg2.extras import NamedTupleCursor
 from datetime import datetime
 
 app = Flask(__name__)
@@ -33,7 +34,7 @@ def index():
     if conn is None:
         return "Ошибка подключения к базе данных", 500
     
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("""
         SELECT DISTINCT e.event_id, e.title, e.date, l.name, l.city, e.photo_url, e.description
         FROM Events e
@@ -52,9 +53,9 @@ def event_detail(event_id):
     if conn is None:
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('index'))
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("""
-        SELECT e.event_id, e.title, e.date, l.name, l.city, e.photo_url, e.description, e.spectator_price, e.participant_price
+        SELECT e.event_id, e.title, e.date, l.name, l.city, e.photo_url, e.description, e.spectator_price, e.participant_price, e.status
         FROM Events e
         JOIN Locations l ON e.location_id = l.location_id
         WHERE e.event_id = %s
@@ -88,7 +89,7 @@ def event_detail(event_id):
         registration = cur.fetchone()
         if registration:
             user_registered = True
-            registration_role = registration[0]
+            registration_role = registration.role
             can_review = True
 
     # Обработка добавления отзыва
@@ -123,12 +124,12 @@ def register():
             return redirect(url_for('register'))
         
         try:
-            cur = conn.cursor()
+            cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
             cur.execute(
                 "INSERT INTO Users (username, email, password, role, city) VALUES (%s, %s, %s, %s, %s) RETURNING user_id",
                 (username, email, password, role, 'Москва')
             )
-            user_id = cur.fetchone()[0]
+            user_id = cur.fetchone().user_id
             conn.commit()
             cur.close()
             conn.close()
@@ -155,7 +156,7 @@ def login():
             flash('Ошибка подключения к базе данных', 'danger')
             return redirect(url_for('login'))
         
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
         cur.execute(
             "SELECT user_id, username, role FROM Users WHERE email = %s AND password = %s",
             (email, password)
@@ -165,8 +166,8 @@ def login():
         conn.close()
         
         if user:
-            session['user'] = {'user_id': user[0], 'username': user[1], 'role': user[2]}
-            flash(f'Добро пожаловать, {user[1]}!', 'success')
+            session['user'] = {'user_id': user.user_id, 'username': user.username, 'role': user.role}
+            flash(f'Добро пожаловать, {user.username}!', 'success')
             return redirect(url_for('index'))
         else:
             flash('Неверный email или пароль', 'danger')
@@ -191,7 +192,7 @@ def register_event(event_id, role):
         return redirect(url_for('index'))
     
     try:
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
         price_field = 'participant_price' if role == 'участник' else 'spectator_price'
         cur.execute(f"SELECT {price_field} FROM Events WHERE event_id = %s", (event_id,))
         amount = cur.fetchone()[0]
@@ -200,7 +201,7 @@ def register_event(event_id, role):
             "INSERT INTO Registrations (user_id, event_id, registration_date, status, role) VALUES (%s, %s, %s, %s, %s) RETURNING registration_id",
             (user_id, event_id, datetime.now(), 'зарегистрировано', role)
         )
-        registration_id = cur.fetchone()[0]
+        registration_id = cur.fetchone().registration_id
         
         cur.execute(
             "INSERT INTO Payments (registration_id, amount, payment_date, status) VALUES (%s, %s, %s, %s)",
@@ -232,14 +233,14 @@ def unregister_event(event_id):
         return redirect(url_for('index'))
     
     try:
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
         cur.execute(
             "SELECT registration_id FROM Registrations WHERE user_id = %s AND event_id = %s",
             (user_id, event_id)
         )
         registration = cur.fetchone()
         if registration:
-            registration_id = registration[0]
+            registration_id = registration.registration_id
             cur.execute(
                 "UPDATE Registrations SET status = 'отменено' WHERE registration_id = %s",
                 (registration_id,)
@@ -274,7 +275,7 @@ def profile():
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('index'))
     
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("SELECT username, email, city FROM Users WHERE user_id = %s", (user_id,))
     user_data = cur.fetchone()
     
@@ -319,7 +320,7 @@ def profile():
 def pay_registration(registration_id):
     if 'user' not in session:
         flash('Пожалуйста, войдите, чтобы оплатить', 'danger')
-        return redirect(url_for('login'))
+        return redirect(url_for('profile'))
     
     user_id = session['user']['user_id']
     conn = get_db_connection()
@@ -328,7 +329,7 @@ def pay_registration(registration_id):
         return redirect(url_for('profile'))
     
     try:
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
         cur.execute("""
             SELECT r.registration_id
             FROM Registrations r
@@ -373,7 +374,7 @@ def edit_profile():
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('profile'))
     
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
@@ -428,7 +429,7 @@ def add_car():
             return redirect(url_for('profile'))
 
         try:
-            cur = conn.cursor()
+            cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
             cur.execute(
                 "INSERT INTO Cars (user_id, model, year, color, photo_url, event_id, created_at) VALUES (%s, %s, %s, %s, %s, %s, %s)",
                 (user_id, model, year, color, photo_url, event_id, datetime.now())
@@ -450,7 +451,7 @@ def add_car():
         return redirect(url_for('profile'))
     
     user_id = session['user']['user_id']
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("""
         SELECT e.event_id, e.title
         FROM Registrations r
@@ -477,7 +478,7 @@ def edit_car(car_id):
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('profile'))
 
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("SELECT car_id, model, year, color, photo_url, event_id FROM Cars WHERE car_id = %s AND user_id = %s", (car_id, user_id))
     car = cur.fetchone()
     if not car:
@@ -535,7 +536,7 @@ def delete_car(car_id):
         return redirect(url_for('profile'))
 
     try:
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
         cur.execute("DELETE FROM Cars WHERE car_id = %s AND user_id = %s", (car_id, user_id))
         conn.commit()
         if cur.rowcount == 0:
@@ -561,7 +562,7 @@ def admin():
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('index'))
     
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("""
         SELECT e.event_id, e.title, e.date, l.name, l.city, e.status, e.photo_url, e.description, u.username, e.spectator_price, e.participant_price
         FROM Events e
@@ -600,7 +601,7 @@ def admin():
         LEFT JOIN Registrations r ON e.event_id = r.event_id AND r.status = 'зарегистрировано'
         GROUP BY e.event_id
     """)
-    event_counts = {row[0]: {'total': row[1], 'spectators': row[2], 'participants': row[3]} for row in cur.fetchall()}
+    event_counts = {row.event_id: {'total': row.total, 'spectators': row.spectators, 'participants': row.participants} for row in cur.fetchall()}
     
     cur.close()
     conn.close()
@@ -629,7 +630,7 @@ def create_event():
             return redirect(url_for('admin'))
         
         try:
-            cur = conn.cursor()
+            cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
             cur.execute(
                 "INSERT INTO Events (title, description, date, location_id, status, photo_url, organizer_id, spectator_price, participant_price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (title, description, date, location_id, status, photo_url, organizer_id, spectator_price, participant_price)
@@ -651,7 +652,7 @@ def create_event():
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('admin'))
     
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("SELECT location_id, name, city FROM Locations")
     locations = cur.fetchall()
     cur.close()
@@ -669,7 +670,7 @@ def edit_event(event_id):
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('admin'))
     
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
@@ -727,7 +728,7 @@ def delete_event(event_id):
         return redirect(url_for('admin'))
     
     try:
-        cur = conn.cursor()
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
         cur.execute("DELETE FROM Registrations WHERE event_id = %s", (event_id,))
         cur.execute("UPDATE Cars SET event_id = NULL WHERE event_id = %s", (event_id,))
         cur.execute("DELETE FROM Events WHERE event_id = %s", (event_id,))
@@ -758,7 +759,7 @@ def edit_review(review_id):
     if conn is None:
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('index'))
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("SELECT event_id, rating, comment FROM Reviews WHERE review_id = %s AND user_id = %s", (review_id, user_id))
     review = cur.fetchone()
     if not review:
@@ -766,7 +767,7 @@ def edit_review(review_id):
         conn.close()
         flash('Отзыв не найден или вы не являетесь его автором', 'danger')
         return redirect(url_for('index'))
-    event_id = review[0]
+    event_id = review.event_id
     if request.method == 'POST':
         rating = int(request.form['rating'])
         comment = request.form['comment']
@@ -790,7 +791,7 @@ def delete_review(review_id):
     if conn is None:
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('index'))
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("SELECT event_id FROM Reviews WHERE review_id = %s AND user_id = %s", (review_id, user_id))
     review = cur.fetchone()
     if not review:
@@ -798,7 +799,7 @@ def delete_review(review_id):
         conn.close()
         flash('Отзыв не найден или вы не являетесь его автором', 'danger')
         return redirect(url_for('index'))
-    event_id = review[0]
+    event_id = review.event_id
     cur.execute("DELETE FROM Reviews WHERE review_id = %s AND user_id = %s", (review_id, user_id))
     conn.commit()
     cur.close()

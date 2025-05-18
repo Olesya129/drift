@@ -72,7 +72,7 @@
                             <td>{{ car[3] }}</td>
                             <td>
                                 {% if car[4] %}
-                                    <img src="{{ car[4] }}" alt="{{ car[1] }}" style="max-width: 100px;">
+                                    <img src="{{ url_for('static', filename=car[4]) }}" alt="{{ car[1] }}" style="max-width: 100px;">
                                 {% else %}
                                     Нет фото
                                 {% endif %}
