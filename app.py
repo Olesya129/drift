@@ -53,7 +53,8 @@ def event_detail(event_id):
     if conn is None:
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('index'))
-    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
+    
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute("""
         SELECT e.event_id, e.title, e.date, l.name, l.city, e.photo_url, e.description, e.spectator_price, e.participant_price, e.status
         FROM Events e
@@ -61,11 +62,21 @@ def event_detail(event_id):
         WHERE e.event_id = %s
     """, (event_id,))
     event = cur.fetchone()
+    
     if not event:
         cur.close()
         conn.close()
         flash('Мероприятие не найдено', 'danger')
         return redirect(url_for('index'))
+
+    # Получаем средний рейтинг и количество отзывов через хранимую процедуру
+    cur.execute(
+        "CALL get_event_average_rating(%s, %s, %s)",
+        (event_id, None, None)
+    )
+    rating_result = cur.fetchone()
+    average_rating = rating_result[0] if rating_result else 0
+    total_reviews = rating_result[1] if rating_result else 0
 
     # Выборка отзывов
     cur.execute("""
@@ -108,7 +119,15 @@ def event_detail(event_id):
 
     cur.close()
     conn.close()
-    return render_template('event_detail.html', event=event, user=session.get('user'), user_registered=user_registered, registration_role=registration_role, reviews=reviews, can_review=can_review)
+    return render_template('event_detail.html', 
+                         event=event, 
+                         user=session.get('user'), 
+                         user_registered=user_registered, 
+                         registration_role=registration_role, 
+                         reviews=reviews, 
+                         can_review=can_review,
+                         average_rating=average_rating,
+                         total_reviews=total_reviews)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -233,34 +252,36 @@ def unregister_event(event_id):
         return redirect(url_for('index'))
     
     try:
-        cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
+        cur = conn.cursor(cursor_factory=NamedTupleCursor)
+        # Получаем registration_id
         cur.execute(
             "SELECT registration_id FROM Registrations WHERE user_id = %s AND event_id = %s",
             (user_id, event_id)
         )
         registration = cur.fetchone()
+        
         if registration:
-            registration_id = registration.registration_id
+            # Вызываем хранимую процедуру cancel_registration
             cur.execute(
-                "UPDATE Registrations SET status = 'отменено' WHERE registration_id = %s",
-                (registration_id,)
+                "CALL cancel_registration(%s, %s, %s)",
+                (registration.registration_id, None, None)
             )
-            cur.execute(
-                "UPDATE Payments SET status = 'ожидает оплаты' WHERE registration_id = %s AND status != 'оплачено'",
-                (registration_id,)
-            )
-            conn.commit()
-            flash('Регистрация на мероприятие успешно отменена!', 'success')
+            result = cur.fetchone()
+            if result and result[0]:  # p_success
+                flash(result[1], 'success')  # p_message
+            else:
+                flash('Ошибка при отмене регистрации', 'danger')
         else:
             flash('Вы не зарегистрированы на это мероприятие', 'danger')
+            
     except Exception as e:
         conn.rollback()
+        flash('Ошибка при отмене регистрации', 'danger')
+        print(f"Ошибка: {e}")
+    finally:
         cur.close()
         conn.close()
-        flash('Ошибка при отмене регистрации', 'danger')
     
-    cur.close()
-    conn.close()
     return redirect(url_for('profile'))
 
 @app.route('/profile')
@@ -564,21 +585,16 @@ def admin():
     
     cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
     cur.execute("""
-        SELECT e.event_id, e.title, e.date, l.name, l.city, e.status, e.photo_url, e.description, u.username, e.spectator_price, e.participant_price
-        FROM Events e
-        JOIN Locations l ON e.location_id = l.location_id
-        LEFT JOIN Users u ON e.organizer_id = u.user_id
-        ORDER BY e.date
+        SELECT event_id, title, date, location_name, location_city, status, spectator_count, participant_count, total_registrations
+        FROM event_registration_counts
+        ORDER BY date
     """)
     events = cur.fetchall()
     
     cur.execute("""
-        SELECT r.registration_id, u.username, e.title, r.registration_date, r.status, p.status AS payment_status, r.role
-        FROM Registrations r
-        JOIN Users u ON r.user_id = u.user_id
-        JOIN Events e ON r.event_id = e.event_id
-        LEFT JOIN Payments p ON r.registration_id = p.registration_id
-        ORDER BY r.registration_date
+        SELECT registration_id, user_username, event_title, registration_date, registration_status, payment_status, registered_role
+        FROM registration_details
+        ORDER BY registration_date
     """)
     registrations = cur.fetchall()
     
@@ -591,21 +607,9 @@ def admin():
     """)
     participant_cars = cur.fetchall()
     
-    # Получаем статистику по участникам и зрителям для каждого мероприятия
-    cur.execute("""
-        SELECT e.event_id,
-               COUNT(r.registration_id) AS total,
-               COUNT(CASE WHEN r.role = 'зритель' THEN 1 END) AS spectators,
-               COUNT(CASE WHEN r.role = 'участник' THEN 1 END) AS participants
-        FROM Events e
-        LEFT JOIN Registrations r ON e.event_id = r.event_id AND r.status = 'зарегистрировано'
-        GROUP BY e.event_id
-    """)
-    event_counts = {row.event_id: {'total': row.total, 'spectators': row.spectators, 'participants': row.participants} for row in cur.fetchall()}
-    
     cur.close()
     conn.close()
-    return render_template('admin.html', events=events, registrations=registrations, participant_cars=participant_cars, event_counts=event_counts)
+    return render_template('admin.html', events=events, registrations=registrations, participant_cars=participant_cars)
 
 @app.route('/admin/create_event', methods=['GET', 'POST'])
 def create_event():
@@ -630,15 +634,23 @@ def create_event():
             return redirect(url_for('admin'))
         
         try:
-            cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
+            cur = conn.cursor(cursor_factory=NamedTupleCursor)
+            # Триггер автоматически обновит статус, если дата в прошлом
             cur.execute(
-                "INSERT INTO Events (title, description, date, location_id, status, photo_url, organizer_id, spectator_price, participant_price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                "INSERT INTO Events (title, description, date, location_id, status, photo_url, organizer_id, spectator_price, participant_price) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING event_id, status",
                 (title, description, date, location_id, status, photo_url, organizer_id, spectator_price, participant_price)
             )
+            result = cur.fetchone()
             conn.commit()
+            
+            # Проверяем, был ли изменен статус триггером
+            if result.status != status:
+                flash(f'Мероприятие создано со статусом "{result.status}" (дата в прошлом)', 'warning')
+            else:
+                flash('Мероприятие успешно создано!', 'success')
+                
             cur.close()
             conn.close()
-            flash('Мероприятие успешно создано!', 'success')
             return redirect(url_for('admin'))
         except Exception as e:
             conn.rollback()
@@ -652,7 +664,7 @@ def create_event():
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('admin'))
     
-    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)
     cur.execute("SELECT location_id, name, city FROM Locations")
     locations = cur.fetchall()
     cur.close()
@@ -670,7 +682,7 @@ def edit_event(event_id):
         flash('Ошибка подключения к базе данных', 'danger')
         return redirect(url_for('admin'))
     
-    cur = conn.cursor(cursor_factory=NamedTupleCursor)  # Используем NamedTupleCursor
+    cur = conn.cursor(cursor_factory=NamedTupleCursor)
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
@@ -682,12 +694,19 @@ def edit_event(event_id):
         participant_price = request.form['participant_price']
         
         try:
+            # Триггер автоматически обновит статус, если дата в прошлом
             cur.execute(
-                "UPDATE Events SET title = %s, description = %s, date = %s, location_id = %s, status = %s, photo_url = %s, spectator_price = %s, participant_price = %s WHERE event_id = %s",
+                "UPDATE Events SET title = %s, description = %s, date = %s, location_id = %s, status = %s, photo_url = %s, spectator_price = %s, participant_price = %s WHERE event_id = %s RETURNING status",
                 (title, description, date, location_id, status, photo_url, spectator_price, participant_price, event_id)
             )
+            result = cur.fetchone()
             conn.commit()
-            flash('Мероприятие успешно обновлено!', 'success')
+            
+            # Проверяем, был ли изменен статус триггером
+            if result and result.status != status:
+                flash(f'Статус мероприятия изменен на "{result.status}" (дата в прошлом)', 'warning')
+            else:
+                flash('Мероприятие успешно обновлено!', 'success')
         except Exception as e:
             conn.rollback()
             flash('Ошибка при обновлении мероприятия', 'danger')

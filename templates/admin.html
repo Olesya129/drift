@@ -11,14 +11,19 @@
                     <tbody>
                         {% for event in events %}
                             <tr>
-                                <td>{{ event[1] }}</td><td>{{ event[2] }}</td><td>{{ event[3] }} ({{ event[4] }})</td><td>{{ event[5] }}</td>
-                                <td>{{ event_counts[event[0]].total if event[0] in event_counts else 0 }}</td>
-                                <td>{{ event_counts[event[0]].spectators if event[0] in event_counts else 0 }}</td>
-                                <td>{{ event_counts[event[0]].participants if event[0] in event_counts else 0 }}</td>
-                                <td><a href="{{ url_for('edit_event', event_id=event[0]) }}" class="btn btn-warning">Редактировать</a>
-                                    <form method="POST" action="{{ url_for('delete_event', event_id=event[0]) }}" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить это мероприятие?');">
+                                <td>{{ event.title }}</td>
+                                <td>{{ event.date }}</td>
+                                <td>{{ event.location_name }} ({{ event.location_city }})</td>
+                                <td>{{ event.status }}</td>
+                                <td>{{ event.total_registrations }}</td>
+                                <td>{{ event.spectator_count }}</td>
+                                <td>{{ event.participant_count }}</td>
+                                <td>
+                                    <a href="{{ url_for('edit_event', event_id=event.event_id) }}" class="btn btn-warning">Редактировать</a>
+                                    <form method="POST" action="{{ url_for('delete_event', event_id=event.event_id) }}" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить это мероприятие?');">
                                         <button type="submit" class="btn btn-danger">Удалить</button>
-                                    </form></td>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -36,7 +41,12 @@
                     <tbody>
                         {% for reg in registrations %}
                             <tr>
-                                <td>{{ reg[1] }}</td><td>{{ reg[2] }}</td><td>{{ reg[3] }}</td><td>{{ reg[4] }}</td><td>{{ reg[5] }}</td><td>{{ reg[6] }}</td>
+                                <td>{{ reg.user_username }}</td>
+                                <td>{{ reg.event_title }}</td>
+                                <td>{{ reg.registration_date }}</td>
+                                <td>{{ reg.registration_status }}</td>
+                                <td>{{ reg.payment_status if reg.payment_status else 'Нет данных' }}</td>
+                                <td>{{ reg.registered_role }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

@@ -28,14 +28,38 @@ VALUES
 -- Вставка мероприятий (некоторые сделаны завершенными, с датами до 18 мая 2025)
 INSERT INTO Events (title, description, date, location_id, organizer_id, spectator_price, participant_price, status, photo_url)
 VALUES 
-    ('Дрифт Битва 2025', 'Эпичная дрифт-битва!', '2025-05-10 14:00:00', 1, 1, 600.00, 2500.00, 'завершено', 'images/361f0121bf5a673133058c285db4e4bd.jpg'),
-    ('Дрифт Фест', 'Казуальная дрифт-встреча', '2025-05-15 18:00:00', 2, 1, 300.00, 1500.00, 'завершено', 'images/567640b24e21fb6b3d7be2692197b4ab.jpg'),
-    ('Большие гонки', 'Огненное сражение', '2025-08-06 16:00:00', 2, 3, 500.00, 2000.00, 'запланировано', 'images/8daa3623030568e21d7966e80390f3fe.jpg'),
-    ('Питерский Дрифт 2025', 'Скоростной заезд в Питере', '2025-07-15 12:00:00', 3, 7, 400.00, 1800.00, 'запланировано', 'images/20725c2244b8baec44c83980b381ddba.jpg'),
-    ('Екатеринбург Дрифт', 'Жесткий дрифт на Урале', '2025-09-10 15:00:00', 4, 3, 350.00, 1700.00, 'запланировано', 'images/6cce0edbba47db4eb2061add7a45b041.jpg'),
-    ('Казанский Дрифт-Фест', 'Гонки и шоу в Казани', '2025-05-12 17:00:00', 5, 1, 450.00, 1900.00, 'завершено', 'images/82a80a6c4dae2988b62748f3761910ec.jpg'),
-    ('Сибирский Заезд', 'Дрифт под сибирским небом', '2025-08-01 14:00:00', 6, 10, 500.00, 2000.00, 'отменено', 'images/d2f483d6653b06023fbb419c271a7f8b.jpg'),
-    ('Московский Финал', 'Финал сезона в Москве', '2025-10-05 13:00:00', 1, 7, 700.00, 3000.00, 'запланировано', 'images/cf2183260080f6d5a1964687d8356815.jpg');
+    ('Дрифт Битва 2025', 'Самый жесткий дрифт-баттл сезона! Лучшие пилоты страны сойдутся в бескомпромиссной схватке за звание короля дыма и резины. 
+	Огненные заносы, визг покрышек, адреналин на пределе — здесь решают не только навыки, но и хладнокровие. 
+	Победитель получит эксклюзивный кубок и право называться самым безумным дрифтером года. Ты готов к битве?', 
+	'2025-05-10 14:00:00', 1, 1, 600.00, 2500.00, 'завершено', 'images/361f0121bf5a673133058c285db4e4bd.jpg'),
+    ('Дрифт Фест', 'Нет давления, только кайф! Открытая дрифт-сессия для всех, кто любит контролируемый хаос. 
+	Новички и профи, старые школы и свежие проекты — здесь каждый может выжечь резину в свое удовольствие. 
+	Живая музыка, гриль-зона и море общения среди единомышленников. Никаких строгих правил, только драйв и хорошая компания!', 
+	'2025-05-15 18:00:00', 2, 1, 300.00, 1500.00, 'завершено', 'images/567640b24e21fb6b3d7be2692197b4ab.jpg'),
+    ('Большие гонки', 'Это не просто гонки — это шоу, где машины танцуют на грани сцепления с асфальтом. 
+	Дымовые завесы, синхронные дрифты, прыжки через трамплины и даже огненные пироэффекты! 
+	Зрителей ждут невероятные трюки, а участников — бешеные эмоции и зрелищные баттлы. 
+	Кто выдержит напор и останется королем асфальта?', 
+	'2025-08-06 16:00:00', 2, 3, 500.00, 2000.00, 'запланировано', 'images/8daa3623030568e21d7966e80390f3fe.jpg'),
+    ('Питерский Дрифт 2025', 'Дождь, туман и скользкий асфальт — идеальные условия для настоящего дрифта! 
+	В этом году трасса станет еще коварнее, а повороты — резче. Только здесь можно увидеть, как машины буквально плывут по мокрому покрытию, 
+	оставляя за собой шлейф брызг и дыма. Северная столица ждет самых отчаянных!',
+	'2025-07-15 12:00:00', 3, 7, 400.00, 1800.00, 'запланировано', 'images/20725c2244b8baec44c83980b381ddba.jpg'),
+    ('Екатеринбург Дрифт', 'Горы, холодный воздух и рев моторов — здесь дрифтуют по-уральски: мощно и без компромиссов. 
+	Участникам предстоит сразиться на техничной трассе с перепадами высот, где каждый поворот — это вызов. 
+	А после заездов — разбор полетов у костра под истории бывалых гонщиков.', 
+	'2025-09-10 15:00:00', 4, 3, 350.00, 1700.00, 'запланировано', 'images/6cce0edbba47db4eb2061add7a45b041.jpg'),
+    ('Казанский Дрифт-Фест', 'Фестиваль скорости и стиля! Помимо жарких дрифт-баттлов, гостей ждут выставка кастомных авто, 
+	конкурс дрифт-такси и выступления звездных пилотов. А вечером — мега-пати с диджеями и световым шоу. 
+	Это не просто соревнования, это праздник автомобильной культуры!', 
+	'2025-05-12 17:00:00', 5, 1, 450.00, 1900.00, 'завершено', 'images/82a80a6c4dae2988b62748f3761910ec.jpg'),
+    ('Сибирский Заезд', 'К сожалению, этот безумный заезд в условиях экстремального холода и ледяного покрытия не состоится. 
+	Но мы обещаем вернуться с еще более дерзким форматом!', 
+	'2025-08-01 14:00:00', 6, 10, 500.00, 2000.00, 'отменено', 'images/d2f483d6653b06023fbb419c271a7f8b.jpg'),
+    ('Московский Финал', 'Грандиозная развязка года! Только здесь определятся абсолютные чемпионы, 
+	а зрителей ждет самое зрелищное шоу: ночные заезды под неоновую подсветку, командные баттлы и фееричный фейерверк в честь закрытия сезона. 
+	Вход — только для настоящих фанатов дрифта!', 
+	'2025-10-05 13:00:00', 1, 7, 700.00, 3000.00, 'отменено', 'images/cf2183260080f6d5a1964687d8356815.jpg');
 
 -- Вставка регистраций (добавим больше регистраций с разными ролями и статусами)
 INSERT INTO Registrations (user_id, event_id, registration_date, status, role)
@@ -72,14 +96,14 @@ VALUES
 -- Вставка машин (добавим больше машин для участников)
 INSERT INTO Cars (user_id, event_id, model, year, color, photo_url)
 VALUES 
-    (2, 1, 'Тойота Супра', 1998, 'Чёрный', 'images/Тойота Супра.jpg"'),
+    (2, 1, 'Тойота Супра', 1998, 'Белый', 'images/Тойота Супра.jpg'),
     (4, 1, 'Ниссан 350Z', 2005, 'Синий', 'images/Ниссан 350Z.jpg'),
     (2, NULL, 'Мазда RX-7', 1995, 'Красный', 'images/Мазда RX-7.jpg'),
     (5, 4, 'БМВ M3', 2010, 'Белый', 'images/БМВ M3.jpg'),
     (6, 5, 'Митсубиси Лансер Эво', 2008, 'Серебристый', 'images/Митсубиси Лансер Эво.jpg'),
-    (8, 4, 'Субару Импреза', 2012, 'Зеленый', 'images/Субару Импреза.jpg'),
-    (9, 1, 'Ниссан Сильвия', 2002, 'Фиолетовый', 'images/Ниссан Сильвия.jpg'),
-    (2, 3, 'Тойота Марк II', 1997, 'Чёрный', 'images/Тойота Марк II.jpg'),
+    (8, 4, 'Субару Импреза', 2012, 'Синий', 'images/Субару Импреза.jpg'),
+    (9, 1, 'Ниссан Сильвия', 2002, 'Белый', 'images/Ниссан Сильвия.jpg'),
+    (2, 3, 'Тойота Марк II', 1997, 'Белый', 'images/Тойота Марк II.jpg'),
     (4, NULL, 'Хонда С2000', 2004, 'Жёлтый', 'images/Хонда С2000.jpg');
 
 -- Вставка отзывов (для завершенных мероприятий)
@@ -100,3 +124,169 @@ SELECT * FROM Cars;
 SELECT * FROM Reviews;
 
 SELECT username, email, role FROM Users WHERE email = 'or@drift.com';
+
+
+-- Создание представления (VIEW) для подсчета зарегистрированных участников и зрителей на каждом мероприятии
+CREATE VIEW event_registration_counts AS
+SELECT
+    e.event_id, -- Идентификатор мероприятия
+    e.title, -- Название мероприятия
+    e.date, -- Дата и время мероприятия
+    l.name AS location_name, -- Название локации из таблицы Locations
+    l.city AS location_city, -- Город локации из таблицы Locations
+    e.status, -- Статус мероприятия
+    -- Подсчет количества зарегистрированных зрителей (только для регистраций со статусом 'зарегистрировано')
+    COUNT(CASE WHEN r.role = 'зритель' THEN 1 ELSE NULL END) AS spectator_count,
+    -- Подсчет количества зарегистрированных участников (только для регистраций со статусом 'зарегистрировано')
+    COUNT(CASE WHEN r.role = 'участник' THEN 1 ELSE NULL END) AS participant_count,
+    -- Подсчет общего количества зарегистрированных записей для мероприятия (со статусом 'зарегистрировано')
+    COUNT(r.registration_id) AS total_registrations
+FROM Events e -- Выбираем данные из таблицы Events
+JOIN Locations l ON e.location_id = l.location_id -- Объединяем с таблицей Locations по location_id
+LEFT JOIN Registrations r ON e.event_id = r.event_id AND r.status = 'зарегистрировано' -- Левое объединение с таблицей Registrations по event_id, фильтруем по статусу 'зарегистрировано'
+GROUP BY e.event_id, e.title, e.date, l.name, l.city, e.status; -- Группируем по полям мероприятия и локации для агрегации
+
+SELECT * FROM event_registration_counts;
+
+-- Создание представления (VIEW) для детальной информации о каждой регистрации, включая статус оплаты
+CREATE OR REPLACE VIEW registration_details AS
+SELECT
+    r.registration_id, -- Идентификатор регистрации
+    u.user_id, -- Идентификатор пользователя
+    u.username AS user_username, -- Имя пользователя
+    u.role AS user_role, -- Роль пользователя (из Users)
+    e.event_id, -- Идентификатор мероприятия
+    e.title AS event_title, -- Название мероприятия
+    e.date AS event_date, -- Дата мероприятия
+    l.name AS location_name, -- Название локации мероприятия
+    l.city AS location_city, -- Город локации мероприятия
+    r.registration_date, -- Дата самой регистрации
+    r.status AS registration_status, -- Статус регистрации (например, зарегистрировано, отменено)
+    r.role AS registered_role, -- Роль, в которой пользователь зарегистрировался на мероприятие (зритель или участник)
+    p.status AS payment_status -- Статус оплаты из таблицы Payments
+FROM Registrations r -- Выбираем из таблицы Registrations
+JOIN Users u ON r.user_id = u.user_id -- Объединяем с таблицей Users по user_id
+JOIN Events e ON r.event_id = e.event_id -- Объединяем с таблицей Events по event_id
+JOIN Locations l ON e.location_id = l.location_id -- Объединяем с таблицей Locations по location_id
+LEFT JOIN Payments p ON r.registration_id = p.registration_id; -- Левое объединение с таблицей Payments по registration_id для получения статуса оплаты (может быть NULL, если оплаты нет)
+
+SELECT * FROM registration_details;
+
+-- Создание хранимых процедур
+
+-- Процедура для отмены регистрации на мероприятие
+CREATE OR REPLACE PROCEDURE cancel_registration(
+    IN p_registration_id INTEGER,
+    OUT p_success BOOLEAN,
+    OUT p_message TEXT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Проверяем существование регистрации
+    IF NOT EXISTS (SELECT 1 FROM Registrations WHERE registration_id = p_registration_id) THEN
+        p_success := FALSE;
+        p_message := 'Регистрация не найдена';
+        RETURN;
+    END IF;
+
+    -- Проверяем статус регистрации
+    IF EXISTS (SELECT 1 FROM Registrations WHERE registration_id = p_registration_id AND status = 'отменено') THEN
+        p_success := FALSE;
+        p_message := 'Регистрация уже отменена';
+        RETURN;
+    END IF;
+
+    -- Отменяем регистрацию
+    UPDATE Registrations
+    SET status = 'отменено'
+    WHERE registration_id = p_registration_id;
+
+    -- Обновляем статус платежа
+    UPDATE Payments
+    SET status = 'отменено'
+    WHERE registration_id = p_registration_id AND status != 'оплачено';
+
+    p_success := TRUE;
+    p_message := 'Регистрация успешно отменена';
+END;
+$$;
+
+-- Процедура для получения среднего рейтинга мероприятия
+CREATE OR REPLACE PROCEDURE get_event_average_rating(
+    IN p_event_id INTEGER,
+    OUT p_average_rating DECIMAL,
+    OUT p_total_reviews INTEGER
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Проверяем существование мероприятия
+    IF NOT EXISTS (SELECT 1 FROM Events WHERE event_id = p_event_id) THEN
+        p_average_rating := 0;
+        p_total_reviews := 0;
+        RETURN;
+    END IF;
+
+    -- Получаем средний рейтинг и количество отзывов
+    SELECT 
+        COALESCE(AVG(rating), 0),
+        COUNT(*)
+    INTO 
+        p_average_rating,
+        p_total_reviews
+    FROM Reviews
+    WHERE event_id = p_event_id;
+END;
+$$;
+
+-- Тестирование хранимых процедур
+DO $$
+DECLARE
+    v_success BOOLEAN;
+    v_message TEXT;
+    v_avg_rating DECIMAL;
+    v_total_reviews INTEGER;
+BEGIN
+    -- Тест отмены регистрации
+    CALL cancel_registration(1, v_success, v_message);
+    RAISE NOTICE 'Результат отмены регистрации: %, %', v_success, v_message;
+
+    -- Тест получения среднего рейтинга
+    CALL get_event_average_rating(1, v_avg_rating, v_total_reviews);
+    RAISE NOTICE 'Средний рейтинг мероприятия: %, количество отзывов: %', v_avg_rating, v_total_reviews;
+END;
+$$;
+
+-- Создание триггерной функции для автоматического обновления статуса мероприятия
+CREATE OR REPLACE FUNCTION update_event_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Если дата мероприятия прошла и статус не "отменено", меняем на "завершено"
+    IF NEW.date < CURRENT_TIMESTAMP AND NEW.status != 'отменено' THEN
+        NEW.status := 'завершено';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Создание триггера
+DROP TRIGGER IF EXISTS event_status_trigger ON Events;
+CREATE TRIGGER event_status_trigger
+    BEFORE INSERT OR UPDATE ON Events
+    FOR EACH ROW
+    EXECUTE FUNCTION update_event_status();
+
+-- Тестирование триггера
+DO $$
+BEGIN
+    -- Обновляем статус существующего мероприятия
+    UPDATE Events 
+    SET date = CURRENT_TIMESTAMP - INTERVAL '1 day'
+    WHERE event_id = 1;
+    
+    -- Проверяем результат
+    RAISE NOTICE 'Статус мероприятия после обновления: %', 
+        (SELECT status FROM Events WHERE event_id = 1);
+END;
+$$;
